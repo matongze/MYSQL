@@ -1,0 +1,30 @@
+import csv
+import MySQLdb
+from decimal import Decimal
+from datetime import datetime
+
+# 创建数据库连接
+conn = MySQLdb.connect(host="localhost", user="root", passwd="m1998121", db="mikuangshuju")
+cursor = conn.cursor()
+
+# 打开CSV文件并导入数据到MySQL
+with open('E:\\ruanjian\\SHUJU\\TSLA.csv', 'r') as csvfile:
+    csvreader = csv.reader(csvfile)
+    next(csvreader) # 跳过标题行
+    for row in csvreader:
+        # 解析CSV行中的数据
+        Date = datetime.strptime(row[0], '%Y-%m-%d')
+        Open = Decimal(row[1])
+        High  = Decimal(row[2])
+        Low  = Decimal(row[3])
+        Close = Decimal(row[4])
+        Adj_Close = Decimal(row[5])
+        Volume = int(row[6])
+        # 将数据插入MySQL表
+        query = "INSERT INTO daily_price ( data_vendor_id, symbol_id, price_date, created_date,last_updated_date, open_price, high_price , low_price,  close_price, adj_close_price, volume) VALUES (%s,%s,%s,%s, %s,%s, %s, %s, %s, %s, %s)"
+        values = (1,1,Date,Date, Date, Open, High, Low, Close, Adj_Close, Volume)
+        cursor.execute(query, values)
+        conn.commit()
+
+# 关闭数据库连接
+conn.close()
